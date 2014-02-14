@@ -1,7 +1,7 @@
 Inflectum
 =========
 
-Inflectum is a library for use with OpenSCAD, which provides the ability to create a smoothly-curved filled shape, made up of nodes and connecting links. Nodes are specified with an ID, position and radius, and links with a node ID, start angle, and end angle. Links can be specified in a clockwise order to create an outer fill shape, or anticlockwise to create a suitable shape for subtraction to create holes. Any undefined node or link properties (excluding IDs) are replaced with defaults. Nodes can also be created relative in position to another node. This, with the correct angles, can produce circle approximations.
+Inflectum is a library for use with OpenSCAD, which provides the ability to create 2D, smoothly-curved, filled shapes, made up of nodes and connecting links. Nodes are specified with an ID, position and radius, and links with a node ID, start angle, and end angle. Links can be specified in a clockwise order to create an outer fill shape, or anticlockwise to create a suitable shape for subtraction to create holes. Any undefined node or link properties (excluding IDs) are replaced with defaults. Nodes can also be created relative in position to another node. This, with the correct angles, can produce circle approximations.
 
 Included along with the main library are extra modules and functions, which can be used separately from the main functionality of the library. These are “left-overs” from the development stage which are not used by the main part of the library. Such extras include functions and modules concerned with lists, cubic bezier curves, mathematics and polygons.
 
