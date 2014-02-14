@@ -18,7 +18,7 @@ To install the library, just copy the inflectum folder into your OpenSCAD librar
 To use the main module and constructor functions, include inflectum.scad into your file:
 
 ```
-include <inflectum/inflectum.scad>
+include <Inflectum/inflectum.scad>
 ```
 
 The main module which creates the filled shape has the form:
@@ -58,7 +58,7 @@ Example
 --------
 
 ```
-include <inflectum/inflectum.scad>
+include <Inflectum/inflectum.scad>
 
 // configuration
 SIDE_LENGTH = 60;
