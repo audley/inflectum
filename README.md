@@ -13,12 +13,12 @@ Inflectum requires the built-in concatenation function to work, which requires O
 
 Using the library
 -----------------
-To install the library, just copy the inflectum folder into your OpenSCAD library folder. The correct folder depends on your system – please check out http://en.wikibooks.org/wiki/OpenSCAD_User_Manual/Libraries#Library_Locations.
+To install the library, just copy the inflectum folder (or use a sym link) into your OpenSCAD library folder. The correct folder depends on your system – please check out http://en.wikibooks.org/wiki/OpenSCAD_User_Manual/Libraries#Library_Locations.
 
 To use the main module and constructor functions, include inflectum.scad into your file:
 
 ```
-include <Inflectum/inflectum.scad>
+include <inflectum/inflectum.scad>
 ```
 
 The main module which creates the filled shape has the form:
@@ -58,7 +58,7 @@ Example
 --------
 
 ```
-include <Inflectum/inflectum.scad>
+include <inflectum/inflectum.scad>
 
 // configuration
 SIDE_LENGTH = 60;
