@@ -17,7 +17,7 @@
 */
 
 use <processing.scad>
-include <input.scad>
+use <input.scad>
 
 /*
 	This file contains the main inflectum module which creates a flat 2D
