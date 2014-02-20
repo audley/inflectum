@@ -46,6 +46,11 @@ CONFIG_MIN_RADIUS = 0.5;
 CONFIG_MIN_DIST = 0.01;
 
 /*
+	This is used to deal with very close angles that should be identical.
+*/
+CONFIG_ANGLE_TOL = 0.01;
+
+/*
 	General maximum number of supported list items for range expansions.
 */
 CONFIG_LIST_MAX = 1000;
