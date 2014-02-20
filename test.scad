@@ -299,9 +299,7 @@ module testErrorMessage(message)
 module testDetails(name,details)
 {
 	echo(str("<font color=blue>&gt;&gt; ",
-		testFormatHTML(name,quotes=false),":<code> ",
-		testFormatHTML(details,quotes=false),
-		"</code></font>"));
+		name,":<code> ",details,"</code></font>"));
 }
 
 /******************************************************************************
