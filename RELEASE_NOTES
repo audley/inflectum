@@ -1,0 +1,29 @@
+inflectum v1.1
+==============
+
+- added radii overriding, multiple radii and "auto" radius support
+	- modified front-end functions:
+		- function inflectumLink(node,angle1,angle2,radius1,radius2)
+		- function inflectumDefaults(node,link,autoRadius)
+	- added front-end specification constructors:
+		- function inflectumAutoRadius(distance)
+	- added keywords
+		- inflectumNode (used with inflectumLink() for radius1/radius2)
+		- inflectumAuto (used with inflectumLink() for radius1/radius2)
+	- updated/added test cases
+-bugfixes:
+	- removed unnecessary reformatting of test details (sometimes caused crashes)
+	- fixed unstable results when two links were at the same outwards angle (number accuracy issue)
+		- added angle-tolerance value to handle such cases
+
+inflectum v1.0
+==============
+
+- added starting modules and functions:
+	- module inflectumShape(nodes,links,defaults)
+	- function inflectumNode(id,position,radius)
+	- function inflectumOuterNode(id,node,angle,radius,onOutside,onInside)
+	- function inflectumLink(node,angle1,angle2)
+	- function inflectumDefaults(node,link)
+- added tests for some of the files and their content
+
