@@ -23,21 +23,25 @@ use <processing/stage2.scad>
 
 /*
 	This file provides the main process() function which takes the input nodes,
-	links and defaults, and returns the points of the final shape. This
-	function calls the processing functions in the correct order, and only
-	returns the final points.
+	links and defaults, and returns the processed data structure by calling
+	the processing functions in the correct order. Other functions are also
+	provided to obtain parts from the final output.
 
 	Functions:
 		function process(nodes,links,defaults)
+		function process_getPoints(data)
 */
 
 /******************************************************************************
                     P R O C E S S I N G   F U N C T I O N
 ******************************************************************************/
 
-// main front-end processing function - returns the list of points
+// main front-end processing function
 function process(nodes,links,defaults) = 
 	process_stage2(
 	process_stage1(
 	process_preprocessing(
-	data(nodes=nodes,links=links,defaults=defaults))))[dataPoints];
+	data(nodes=nodes,links=links,defaults=defaults))));
+
+// gets the list of points from processed data
+function process_getPoints(data) = data[dataPoints];

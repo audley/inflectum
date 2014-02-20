@@ -18,6 +18,7 @@
 
 use <processing.scad>
 use <input.scad>
+include <keywords.scad>
 
 /*
 	This file contains the main inflectum module which creates a flat 2D
@@ -36,8 +37,9 @@ use <input.scad>
 	Functions: (from input.scad)
 		function inflectumNode(id,position,radius)
 		function inflectumOuterNode(id,node,angle,radius,onOutside,onInside)
-		function inflectumLink(node,angle1,angle2)
-		function inflectumDefaults(node,link)
+		function inflectumLink(node,angle1,angle2,radius1,radius2)
+		function inflectumAutoRadius(distance)
+		function inflectumDefaults(node,link,autoRadius)
 */
 
 /******************************************************************************
@@ -54,8 +56,11 @@ use <input.scad>
 */
 module inflectumShape(nodes,links,defaults)
 {
-	// generate the points
-	POINTS = process(nodes,links,defaults);
+	// process the data
+	PROCESSED_DATA = process(nodes,links,defaults);
+
+	// get the points
+	POINTS = process_getPoints(PROCESSED_DATA);
 
 	// create the 2D shape
 	polygon(POINTS);
