@@ -278,6 +278,11 @@ testGroup("Main Inflectum Module")
 			"no overlapping curves at center"),
 		testCase("circle approximation",[6],
 			"approximate circle within the three nodes, no crossing curves"),
+	])testModule([0,0],[30,0])
+		linear_extrude(5) inflectumShape(
+			DATA[$value[0]][0],DATA[$value[0]][1],DATA[$value[0]][2]);
+
+	testSet("inflectumShape","direct test (extruded)",[
 		testCase("linear angle",[7],
 			"linear lines between node edges"),
 		testCase("X formation",[8],
@@ -290,6 +295,11 @@ testGroup("Main Inflectum Module")
 			"lower center radius near top"),
 		testCase("auto radius ability - straight angle",[12],
 			"no bulging radius"),
+	])testModule([0,-30],[30,0])
+		linear_extrude(5) inflectumShape(
+			DATA[$value[0]][0],DATA[$value[0]][1],DATA[$value[0]][2]);
+
+	testSet("inflectumShape","direct test (extruded)",[
 		testCase("auto radius ability - reflex angle",[13],
 			"center radius near top"),
 		testCase("undefined defaults",[14],
@@ -299,7 +309,7 @@ testGroup("Main Inflectum Module")
 		testCase("undefined links",[16],"nothing"),
 		testCase("undefined nodes and links",[17],"nothing"),
 		testCase("undefined nodes, links and defauts",[18],"nothing"),
-	])testModule([0,0],[30,0])
+	])testModule([0,-60],[30,0])
 		linear_extrude(5) inflectumShape(
 			DATA[$value[0]][0],DATA[$value[0]][1],DATA[$value[0]][2]);
 
@@ -309,7 +319,7 @@ testGroup("Main Inflectum Module")
       testCase("Y formation",[0]),
 		testCase("circle with bell-like holes",[1]),
 		testCase("4-cornered object with center hole",[2]),
-	])testModule([0,-30],[30,0])
+	])testModule([60,-60],[30,0])
 		linear_extrude(5) difference()
 		{
 			// add main fill (links are specified in a clockwise order)
