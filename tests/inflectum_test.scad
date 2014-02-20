@@ -34,14 +34,16 @@ include <../inflectum.scad>
                      M A I N   M O D U L E   T E S T S
 ******************************************************************************/
 
-$fs = 3;
+$fs = 0.5;
 
 /*
    Key tests: angle overlap and miss,
 	           linear angle for two different-radii nodes,
 	           outer nodes (relational),
 	           undefined link/node lists and defaults,
-	           holes (using difference())
+	           holes (using difference()),
+	           radii overrides and interpolation,
+	           auto radius
 */
 
 /*
@@ -50,51 +52,68 @@ $fs = 3;
 */
 NODES1 = [
 	inflectumNode("center",[0,0]),
-	inflectumNode("top-left",[-100,100]),
-	inflectumNode("top-right",[100,100])];
+	inflectumNode("top-left",[-10,10]),
+	inflectumNode("top-right",[10,10])];
 NODES2 = NODES1;
 NODES3 = NODES1;
 NODES4 = NODES1;
 NODES5 = [
 	inflectumNode("0",[0,0]),
-	inflectumNode("1",[-60,60]),
-	inflectumNode("2",[-100,120]),
-	inflectumNode("3",[-60,180]),
-	inflectumNode("4",[0,240]),
-	inflectumNode("5",[60,180]),
-	inflectumNode("6",[100,120]),
-	inflectumNode("7",[60,60])];
+	inflectumNode("1",[-6,6]),
+	inflectumNode("2",[-10,12]),
+	inflectumNode("3",[-6,18]),
+	inflectumNode("4",[0,24]),
+	inflectumNode("5",[6,18]),
+	inflectumNode("6",[10,12]),
+	inflectumNode("7",[6,6])];
 NODES6 = [
 	inflectumNode("center",[0,0],0),
-	inflectumNode("left",[-100,0]),
-	inflectumNode("right",[100,0])];
-NODES7_CENTER = inflectumNode("center",[0,0],100);
+	inflectumNode("left",[-10,0]),
+	inflectumNode("right",[10,0])];
+NODES7_CENTER = inflectumNode("center",[0,0],10);
 NODES7 = [
-	inflectumOuterNode("bottom-left",NODES7_CENTER,-135,30,onOutside=true),
-	inflectumOuterNode("bottom-center-th",NODES7_CENTER,-90,5,onOutside=true),
-	inflectumOuterNode("bottom-right",NODES7_CENTER,-45,30,onOutside=true),
-	inflectumOuterNode("middle-right-th",NODES7_CENTER,0,5,onOutside=true),
-	inflectumOuterNode("top-right",NODES7_CENTER,45,30,onOutside=true)];
+	inflectumOuterNode("bottom-left",NODES7_CENTER,-135,3,onOutside=true),
+	inflectumOuterNode("bottom-center-th",NODES7_CENTER,-90,0.5,onOutside=true),
+	inflectumOuterNode("bottom-right",NODES7_CENTER,-45,3,onOutside=true),
+	inflectumOuterNode("middle-right-th",NODES7_CENTER,0,0.5,onOutside=true),
+	inflectumOuterNode("top-right",NODES7_CENTER,45,3,onOutside=true)];
 NODES8 = [
-	inflectumNode("left",[-100,0],30),
-	inflectumNode("right",[100,0],70)];
+	inflectumNode("left",[-10,0],3),
+	inflectumNode("right",[10,0],7)];
 NODES9 = [
 	inflectumNode("center",[0,0]),
-	inflectumNode("top-left",[-100,100]),
-	inflectumNode("top-right",[100,100]),
-	inflectumNode("bottom-right",[100,-100]),
-	inflectumNode("bottom-left",[-100,-100])];
+	inflectumNode("top-left",[-10,10]),
+	inflectumNode("top-right",[10,10]),
+	inflectumNode("bottom-right",[10,-10]),
+	inflectumNode("bottom-left",[-10,-10])];
+NODES10 = NODES8;
+NODES11 = [
+	inflectumNode("center",[0,0]),
+	inflectumNode("top-left",[-10,20]),
+	inflectumNode("top-right",[10,20])];
+NODES12 = [
+	inflectumNode("center",[0,0]),
+	inflectumNode("top-left",[-10,7]),
+	inflectumNode("top-right",[10,7])];
+NODES13 = [
+	inflectumNode("center",[0,0]),
+	inflectumNode("top-left",[-10,0]),
+	inflectumNode("top-right",[10,0])];
+NODES14 = [
+	inflectumNode("center",[0,0]),
+	inflectumNode("top-left",[-10,-7]),
+	inflectumNode("top-right",[10,-7])];
 NODES_ALPHA_1 = [
-	inflectumNode("top-left",[-15,15]*5,5*5),
-	inflectumNode("top-right",[15,15]*5,5*5),
-	inflectumNode("center",[0,0]*5,5*5),
-	inflectumNode("bottom",[0,-15]*5,5*5)];
+	inflectumNode("top-left",[-7.5,7.5],2.5),
+	inflectumNode("top-right",[7.5,7.5],2.5),
+	inflectumNode("center",[0,0],2.5),
+	inflectumNode("bottom",[0,-7.5],2.5)];
 NODES_ALPHA_2 = [
-	inflectumNode("center",[0,0]*5,5*5),
-	inflectumNode("top-left",[-15,15]*5,10*5),
-	inflectumNode("top-right",[15,15]*5,10*5),
-	inflectumNode("bottom-right",[15,-15]*5,10*5),
-	inflectumNode("bottom-left",[-15,-15]*5,10*5)];
+	inflectumNode("center",[0,0],2.5),
+	inflectumNode("top-left",[-7.5,7.5],5),
+	inflectumNode("top-right",[7.5,7.5],5),
+	inflectumNode("bottom-right",[7.5,-7.5],5),
+	inflectumNode("bottom-left",[-7.5,-7.5],5)];
 NODES_ALPHA_3 = NODES_ALPHA_2;
 LINKS1 = [
 	inflectumLink("center"),
@@ -140,6 +159,17 @@ LINKS9 = [
 	inflectumLink("bottom-right"),
 	inflectumLink("center"),
 	inflectumLink("bottom-left")];
+LINKS10 = [
+	inflectumLink("right",radius1=4,radius2=4),
+	inflectumLink("left",radius1=2,radius2=8)];
+LINKS11 = [
+	inflectumLink("center"),
+	inflectumLink("top-left",radius2=inflectumAuto),
+	inflectumLink("center",radius1=inflectumAuto),
+	inflectumLink("top-right")];
+LINKS12 = LINKS11;
+LINKS13 = LINKS11;
+LINKS14 = LINKS11;
 LINKS_ALPHA_1 = [
 	inflectumLink("center"),
 	inflectumLink("top-left"),
@@ -179,22 +209,30 @@ LINKS_ALPHA_3_S1 = [
 	inflectumLink("bottom-left"),
 	inflectumLink("bottom-right")];
 DEFAULTS1 = inflectumDefaults(
-	inflectumNode(undef,undef,40),
+	inflectumNode(undef,undef,4),
 	inflectumLink(undef,-45,-45));
 DEFAULTS2 = inflectumDefaults(
-	inflectumNode(undef,undef,40),
+	inflectumNode(undef,undef,4),
 	inflectumLink(undef,0,0));
 DEFAULTS3 = DEFAULTS2;
 DEFAULTS4 = inflectumDefaults(
-	inflectumNode(undef,undef,40),
+	inflectumNode(undef,undef,4),
 	inflectumLink(undef,-95,-95));
 DEFAULTS5 = inflectumDefaults(
-	inflectumNode(undef,undef,20),
+	inflectumNode(undef,undef,2),
 	inflectumLink(undef,90,0));
 DEFAULTS6 = DEFAULTS2;
 DEFAULTS7 = DEFAULTS2;
 DEFAULTS8 = DEFAULTS2;
 DEFAULTS9 = DEFAULTS2;
+DEFAULTS10 = DEFAULTS2;
+DEFAULTS11 = inflectumDefaults(
+	inflectumNode(undef,undef,5),
+	inflectumLink(undef,0,0),
+	inflectumAutoRadius(10));
+DEFAULTS12 = DEFAULTS11;
+DEFAULTS13 = DEFAULTS11;
+DEFAULTS14 = DEFAULTS11;
 DEFAULTS_ALPHA_1 = DEFAULTS2;
 DEFAULTS_ALPHA_2 = DEFAULTS2;
 DEFAULTS_ALPHA_3 = DEFAULTS2;
@@ -208,6 +246,11 @@ DATA = [
 	[NODES7,LINKS7,DEFAULTS7],
 	[NODES8,LINKS8,DEFAULTS8],
 	[NODES9,LINKS9,DEFAULTS9],
+	[NODES10,LINKS10,DEFAULTS10],
+	[NODES11,LINKS11,DEFAULTS11],
+	[NODES12,LINKS12,DEFAULTS12],
+	[NODES13,LINKS13,DEFAULTS13],
+	[NODES14,LINKS14,DEFAULTS14],
 	[NODES3,LINKS3,undef],
 	[undef,LINKS1,DEFAULTS1],
 	[NODES1,undef,DEFAULTS1],
@@ -228,7 +271,7 @@ testGroup("Main Inflectum Module")
 		testCase("single angle overlap, 0 degree node angles",[1],
 			"3 nodes, linear outside curves, curves meet correctly inside"),
 		testCase("no overlap, triangle formation",[2],
-			"triange with round corners"),
+			"triange with round 15corners"),
 		testCase("polygon formation",[4],
 			"8 nodes, correctly-connecting curves"),
 		testCase("0 center radius (close to)",[5],
@@ -239,25 +282,35 @@ testGroup("Main Inflectum Module")
 			"linear lines between node edges"),
 		testCase("X formation",[8],
 			"4 outer nodes & center node, no curve overlapping"),
-		testCase("undefined defaults",[9],
+		testCase("radii overrides and interpolation",[9],
+			"smooth transitions between differing radii"),
+		testCase("auto radius ability - acute angle",[10],
+			"center radius near top"),
+		testCase("auto radius ability - obtuse angle",[11],
+			"lower center radius near top"),
+		testCase("auto radius ability - straight angle",[12],
+			"no bulging radius"),
+		testCase("auto radius ability - reflex angle",[13],
+			"center radius near top"),
+		testCase("undefined defaults",[14],
 			"triangle with slightly rounded corners"),
-		testCase("undefined nodes",[10],
+		testCase("undefined nodes",[15],
 			"warning messages (after this text), no constructed geometry"),
-		testCase("undefined links",[11],"nothing"),
-		testCase("undefined nodes and links",[12],"nothing"),
-		testCase("undefined nodes, links and defauts",[13],"nothing"),
-	])testModule([0,0],[300,0])
-		linear_extrude(50) inflectumShape(
+		testCase("undefined links",[16],"nothing"),
+		testCase("undefined nodes and links",[17],"nothing"),
+		testCase("undefined nodes, links and defauts",[18],"nothing"),
+	])testModule([0,0],[30,0])
+		linear_extrude(5) inflectumShape(
 			DATA[$value[0]][0],DATA[$value[0]][1],DATA[$value[0]][2]);
 
-	 testSet("inflectumShape - alpha tests",
+	testSet("inflectumShape - alpha tests",
 		str("direct test using designs from old implementation tests which used ",
 		    "double-sided links (from extras/old/inflectumLinks.scad)"),[
       testCase("Y formation",[0]),
 		testCase("circle with bell-like holes",[1]),
 		testCase("4-cornered object with center hole",[2]),
-	])testModule([0,-300],[300,0])
-		linear_extrude(50) difference()
+	])testModule([0,-30],[30,0])
+		linear_extrude(5) difference()
 		{
 			// add main fill (links are specified in a clockwise order)
 			inflectumShape(

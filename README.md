@@ -1,7 +1,7 @@
 Inflectum
 =========
 
-Inflectum is a library for use with OpenSCAD, which provides the ability to create 2D, smoothly-curved, filled shapes, made up of nodes and connecting links. Nodes are specified with an ID, position and radius, and links with a node ID, start angle, and end angle. Links can be specified in a clockwise order to create an outer fill shape, or anticlockwise to create a suitable shape for subtraction to create holes. Any undefined node or link properties (excluding IDs) are replaced with defaults. Nodes can also be created relative in position to another node. This, with the correct angles, can produce circle approximations.
+Inflectum is a library for use with OpenSCAD, which provides the ability to create 2D, smoothly-curved, filled shapes, made up of nodes and connecting links. Nodes are specified with an ID, position and radius, and links with a node ID, start angle, and end angle, and optionally with overriding radii. Links can be specified in a clockwise order to create an outer fill shape, or anticlockwise to create a suitable shape for subtraction to create holes. Any undefined node or link properties (excluding IDs) are replaced with defaults. Nodes can also be created relative in position to another node. This, with the correct angles, can produce circle approximations.
 
 Included along with the main library are extra modules and functions, which can be used separately from the main functionality of the library. These are “left-overs” from the development stage which are not used by the main part of the library. Such extras include functions and modules concerned with lists, cubic bezier curves, mathematics and polygons.
 
@@ -20,13 +20,11 @@ To use the main module and constructor functions, include inflectum.scad into yo
 ```
 include <inflectum/inflectum.scad>
 ```
-
 The main module which creates the filled shape has the form:
 
 ```
 module inflectumShape(nodes,links,defaults)
 ```
-
 where 'nodes' is a list of nodes constructed using inflectumNode() or inflectumOuterNode(), 'links' is a list of links constructed using inflectumLink(), and 'defaults' (optional) is the default node and link specification, created using inflectumDefaults().
 
 The node constructor functions have the form:
@@ -35,24 +33,28 @@ The node constructor functions have the form:
 function inflectumNode(id,position,radius)
 function inflectumOuterNode(id,node,angle,radius,onOutside,onInside)
 ```
-
 where 'id' is a string identifier (to allow links to refer to the node), 'position' is a 2D vector to position the center of the node, 'radius' gives the radius of the node (of which the minimum is set in inflectum/config.scad), 'node' is a node constructed using inflectumNode() or inflectumOuterNode(), 'angle' gives the position relative to the provided node (anticlockwise from +x axis), and 'onOutside' and 'onInside' (specify one or neither set to true) are flags to set whether the node is placed on the inside or outside of the provided reference node. inflectumNode() allows a node to be positioned by a position vector, while inflectumOuterNode() allows a node to be positioned at a given radius and angle relative to another node.
 
 The link constructor function has the form:
 
 ```
-function inflectumLink(node,angle1,angle2)
+function inflectumLink(node,angle1,angle2,radius1,radius2)
 ```
-
-where 'node' is the string identifier of the node to use, and 'angle1' and 'angle2' are the start and end angles of the link respectively. The angles are relative to the linear angle that is formed from a line connecting the sides of the current and next node in the chain, where a negative angle points inwards and a positive angle points outwards.
+where 'node' is the string identifier of the node to use, 'angle1' and 'angle2' are the start and end angles of the link respectively, and 'radius1' and 'radius2' are the start and end node overriding-radii. The angles are relative to the linear angle that is formed from a line connecting the sides of the current and next node in the chain, where a negative angle points inwards and a positive angle points outwards. The overriding radii may be specified using a number or by using the keywords 'inflectumNode' or 'inflectumAuto'. 'inflectumNode' uses the node's true radius, while 'inflectumAuto' calculates a suitable radius based on the auto-radius configuration.
 
 The defaults constructor function has the form:
 
 ```
-function inflectumDefaults(node,link)
+function inflectumDefaults(node,link,autoRadius)
 ```
+where 'node' is a node constructed using inflectumNode(), 'link' is a link constructed using inflectumLink(), and 'autoRadius' is a auto-radius configuration created using inflectumAutoRadius(). The node and link passed to this constructor contain property values that will replace any undefined properties (except node IDs) for the nodes and links passed as lists. If any of the default properties provided are undefined, they will be replaced with hard-coded defaults. Invalid nodes or links will be omitted.
 
-where 'node' is a node constructed using inflectumNode(), and 'link' is a link constructed using inflectumLink(). The node and link passed to this constructor contain property values that will replace any undefined properties (except node IDs) for the nodes and links passed as lists. If any of the default properties provided are undefined, they will be replaced with hard-coded defaults. Invalid nodes or links will be omitted.
+The auto-radius configuration constructor has the form:
+
+```
+function inflectumAutoRadius(distance)
+```
+where 'distance' is the intended minimum distance between the sides of two close links. The distance can be changed to affect all of the auto-radii overrides (using the 'inflectumAuto' keyword).
 
 Example
 --------
@@ -81,7 +83,6 @@ DEFAULTS = inflectumDefaults(
 // create the shape
 inflectumShape(NODES,LINKS,DEFAULTS);
 ```
-
 Please check out the tests located within the inflectum library folder: inflectum/tests/inflectum_test.scad.
 
 Tests

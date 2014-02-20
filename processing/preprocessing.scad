@@ -21,6 +21,7 @@ include <../common.scad>
 include <../config.scad>
 include <../structures.scad>
 include <../input.scad>
+include <../keywords.scad>
 use <input.scad>
 
 /*
@@ -52,12 +53,16 @@ function $function1(link) = preprocessing_link(link);
 // main preprocess function
 function process_preprocessing(data) = _
 (
-	// node and link defaults correction
+	// node, link and auto-radius defaults correction
 	$defaults_node = nodeCorrection(
 		data[dataDefaults][defaultsNode],
 		inflectumNode(undef,undef,CONFIG_MIN_RADIUS)),
 	$defaults_link = linkCorrection(
-		data[dataDefaults][defaultsLink],inflectumLink(undef,0,0)),
+		data[dataDefaults][defaultsLink],
+			inflectumLink(undef,0,0,inflectumNode,inflectumNode)),
+	$defaults_autoRadius = autoRadiusCorrection(
+		data[dataDefaults][defaultsAutoRadius],
+			inflectumAutoRadius(CONFIG_MIN_RADIUS)),
 
 	// node correction (defaults) and filtering
 	$nodes = data[dataNodes],
@@ -73,7 +78,8 @@ function process_preprocessing(data) = _
 		nodes=$processed_nodes,
 		links=$processed_links,
 		defaults=defaults(defaults=data[dataDefaults],
-			node=$defaults_node,link=$defaults_link)),
+			node=$defaults_node,link=$defaults_link,
+			autoRadius=$defaults_autoRadius)),
 
 	// return the new data
 	RETURN ($data)

@@ -31,8 +31,8 @@ include <../bezier.scad>
 		function process_stage2(data)
 
 	Internal functions:
-		function stage2_link(data)
-		function stage2_closeLink(data)
+		function stage2_link(link,index)
+		function stage2_nod(step)
 */
 
 /******************************************************************************
@@ -90,20 +90,26 @@ function stage2_link(link,index) = _
 	// work out the start and end angles for the partial node (NOD)
 	$angleA = angle($pA-$pN),
 	$angleB = angleCorrection(angle($pB-$pN),$angleA,"<"),
-	$angleDiff = abs($angleA-$angleB),
+	$angleDiff = abs($angleB-$angleA),
 	
 	// work out the start and end radii for the partial node (NOD)
-	$radiusA = norm($pN-$pA),
-	$radiusB = norm($pN-$pB),
-	$maxRad  = max($radiusA,$radiusB),
+	$radiusA    = norm($pN-$pA),
+	$radiusB    = norm($pN-$pB),
+	$radiusMid  = ($radiusA+$radiusB)/2,
+	$radiusDiff = $radiusB-$radiusA,
 	
 	// determine the number of steps to use for the partial node
-	$STEPS = max(0,floor(2*PI*$maxRad*($angleDiff/360)/$fs)),
+	$STEPS = max(0,floor(2*PI*$radiusMid*($angleDiff/360)/$fs)),
 
-	// create the points for the partial node and curve
+	// find the control points for the bezier curve
+	$NODctrlPoints = bezierControlPoints([$pA,$angleA-90,$pB,$angleB-90]),
+
+	// create the points for the partial node
 	$nodePoints = 
 		IF ($STEPS<2) ? THEN ([])
 		:ELSE (map("stage2_nod",listFromRange([1:$STEPS-1]))),
+
+	// create the points for the curve
 	$curvePoints = bezierPoints($ctrlPoints),
 
 	// return the points concatenated together
@@ -117,13 +123,35 @@ function stage2_link(link,index) = _
 */
 function stage2_nod(step) = _
 (
-	// calculate the angle and radius for the current step
-	$angle  = lookup(step,[[0,$angleA],[$STEPS,$angleB]]),
-	$radius = lookup(step,[[0,$radiusA],[$STEPS,$radiusB]]),
+	// if the angle-span is 90 degrees or less, use just the bezier point
+	IF ($angleDiff<=90) ? THEN (bezierPoint($NODctrlPoints,step/$STEPS))
 
-	// find the current point
-	$point  = $pN+$radius*[cos($angle),sin($angle)],
+	// otherwise...
+	:ELSE
+	(
+		// calculate the angle and radius for the current step
+		// (using cosine interpolation for the radius)
+		$angle  = lookup(step,[[0,$angleA],[$STEPS,$angleB]]),
+		$radius = $radiusMid-cos(180*(step/$STEPS))*$radiusDiff/2,
+	
+		// find the current circle point
+		$cpoint = $pN+$radius*[cos($angle),sin($angle)],
 
-	// return the partial node point
-	RETURN ($point)
+		// if the angle-span is 180 degrees or more, use the circle point as is
+		IF ($angleDiff>=180) ? THEN ($cpoint)
+
+		// otherwise...
+		:ELSE
+		(
+			// find the bezier point and difference between the circle point
+			$bpoint    = bezierPoint($NODctrlPoints,step/$STEPS),
+			$pointDiff = $cpoint-$bpoint,
+
+			// find the point (between bezier (90) and circle (180) points)
+			$point = $bpoint+$pointDiff*($angleDiff/90-1),
+		
+			// return the partial node point
+			RETURN ($point)
+		)
+	)
 );

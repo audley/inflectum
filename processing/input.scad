@@ -19,18 +19,21 @@
 include <../common.scad>
 include <../structures.scad>
 include <../value.scad>
+include <../keywords.scad>
 
 /*
-	This file contains functions to fill empty node and link properties with
-	properties from default nodes/links, and functions to check whether a
-	node/link is valid.
+	This file contains functions to fill empty node/link/autoRadius properties
+	with properties from default specifications, and functions to check whether
+	a node/link/autoRadius is valid.
 
 	Default-Correction Functions:
 		function nodeCorrection(node,default)
 		function linkCorrection(link,default)
+		function autoRadiusCorrection(autoRadius,default)
 	Verification Functions:
 		function nodeIsValid(node)
-		function linkIsValid(node)
+		function linkIsValid(link)
+		function autoRadiusIsValid(autoRadius)
 */
 
 /******************************************************************************
@@ -53,7 +56,16 @@ function nodeCorrection(node,default) =
 */
 function linkCorrection(link,default) = 
 	link(link=default,
-		node=link[linkNode],angle1=link[linkAngle1],angle2=link[linkAngle2]);
+		node=link[linkNode],angle1=link[linkAngle1],angle2=link[linkAngle2],
+		radius1=link[linkRadius1],radius2=link[linkRadius2]);
+
+/*
+	Replaces any undefined auto-radius properties with default values,
+	returning the "corrected" auto-radius-specification. A default specification
+	containing the default values must be provided.
+*/
+function autoRadiusCorrection(autoRadius,default) = 
+	autoRadius(autoRadius=default,distance=autoRadius[autoRadiusDistance]);
 
 /******************************************************************************
              V E R I F I C A T I O N   F U N C T I O N S
@@ -84,12 +96,36 @@ function nodeIsValid(node) = _
 function linkIsValid(link) = _
 (
 	// obtain the separate minimal properties
-	$node   = link[linkNode],
-	$angle1 = link[linkAngle1],
-	$angle2 = link[linkAngle2],
+	$node    = link[linkNode],
+	$angle1  = link[linkAngle1],
+	$angle2  = link[linkAngle2],
+	$radius1 = link[linkRadius1],
+	$radius2 = link[linkRadius2],
 
 	// determine whether the link is valid
-	$valid = !(!isString($node)||$angle1==undef||$angle2==undef),
+	$radius1_OK = $radius1==inflectumNode
+		||$radius1==inflectumAuto||number($radius1)!=undef,
+	$radius2_OK = $radius2==inflectumNode
+		||$radius2==inflectumAuto||number($radius2)!=undef,
+	$valid = !(!isString($node)||$angle1==undef||$angle2==undef
+		||!$radius1_OK||!$radius2_OK),
+
+	// return the result
+	RETURN ($valid)
+);
+
+/*
+	Returns true if the auto-radius-specification is valid, otherwise false. An
+	auto-radius-specificaiton is valid when all of its properties are
+	fully defined.
+*/
+function autoRadiusIsValid(autoRadius) = _
+(
+	// obtain the separate minimal properties
+	$distance = autoRadius[autoRadiusDistance],
+
+	// determine whether the auto-radius-specification is valid
+	$valid = !($distance==undef),
 
 	// return the result
 	RETURN ($valid)

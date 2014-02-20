@@ -20,23 +20,27 @@ include <../../test.scad>
 include <../../config.scad>
 include <../../structures.scad>
 include <../../input.scad>
+include <../../keywords.scad>
 use <../../processing/input.scad>
 
 /*
 	Test Group: Correction Functions
 		function nodeCorrection(node,default)
 		function linkCorrection(link,default)
+		function autoRadiusCorrection(autoRadius,default)
 	Test Group: Defaults Constructor Function
 		function inflectumDefaults(node=undef,link=undef)
 	Test Group: Verification Functions
 		function nodeIsValid(node)
 		function linkIsValid(node)
+		function autoRadiusIsValid(autoRadius)
 
 	Indirectly-tested Functions:
 		function inflectumNode(id,position,radius)
 		function inflectumOuterNode(id,node,angle,radius,onOutside,onInside)
-		function inflectumLink(node,angle1,angle2)
-		function inflectumDefaults(node,link)
+		function inflectumLink(node,angle1,angle2,radius1,radius2)
+		function inflectumAutoRadius(distance)
+		function inflectumDefaults(node,link,autoRadius)
 */
 
 /******************************************************************************
@@ -63,9 +67,9 @@ ONODE4  = inflectumOuterNode("onode4",NODE1,180,5);
 ONODE5  = inflectumOuterNode("onode5",NODE3,0,5);
 ONODE6  = inflectumOuterNode("onode6",undef,0,5);
 DEFNODE = inflectumNode(position=[20,25],radius=10);
-LINK1   = inflectumLink("1",-45,10);
+LINK1   = inflectumLink("1",-45,10,inflectumNode,inflectumNode);
 LINK2   = inflectumLink("5");
-DEFLINK = inflectumLink(undef,-30,-30,false,5);
+DEFLINK = inflectumLink(undef,-30,-30,inflectumNode,inflectumNode);
 testGroup("Correction Functions")
 {
    testSet("nodeCorrection","direct test",[
@@ -98,9 +102,11 @@ testGroup("Correction Functions")
 
 	testSet("linkCorrection","direct test",[
       testCase("completely specified",[LINK1,DEFLINK],
-			link(node="1",angle1=-45,angle2=10,isIndep=true,thickness=10)),
+			link(node="1",angle1=-45,angle2=10,
+				radius1=inflectumNode,radius2=inflectumNode)),
       testCase("only node specified",[LINK2,DEFLINK],
-			link(node="5",angle1=-30,angle2=-30,isIndep=false,thickness=5))])
+			link(node="5",angle1=-30,angle2=-30,
+				radius1=inflectumNode,radius2=inflectumNode))])
 		testFunction(linkCorrection($value[0],$value[1]));
 
 // end of test group
@@ -122,8 +128,8 @@ NODE2_1 = inflectumNode("node1",[2,5],5);
 NODE2_2 = inflectumNode("node2",[undef,5]);
 NODE2_3 = inflectumNode("node3",[1,1],-5);
 NODE2_4 = inflectumNode("node5");
-LINK2_1 = inflectumLink("1",-45,10,true,10);
-LINK2_2 = inflectumLink("5",undef,undef,false,10);
+LINK2_1 = inflectumLink("1",-45,10,10,inflectumNode);
+LINK2_2 = inflectumLink("5",undef,undef,inflectumAuto,inflectumNode);
 LINK2_3 = inflectumLink("7");
 testGroup("Verification Functions")
 {

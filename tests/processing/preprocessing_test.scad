@@ -19,6 +19,7 @@
 include <../../test.scad>
 include <../../config.scad>
 include <../../structures.scad>
+include <../../keywords.scad>
 use <../../processing/preprocessing.scad>
 use <../../input.scad>
 
@@ -30,7 +31,8 @@ use <../../input.scad>
 		function inflectumNode(id,position,radius)
 		function inflectumOuterNode(id,node,angle,radius,onOutside,onInside)
 		function inflectumLink(node,angle1,angle2)
-		function inflectumDefaults(node,link)
+		function autoRadius(autoRadius=undef,distance)
+		function defaults(defaults=undef,node,link,autoRadius)
 */
 
 /******************************************************************************
@@ -53,18 +55,20 @@ NODES1 = [
 	inflectumNode("node5",[120,120],8)];
 LINKS1 = [
 	inflectumLink("node1",-45,-45),
-	inflectumLink("node2",-45,-30,true,10),
-	inflectumLink("node3",10,10,false,10),
+	inflectumLink("node2",-45,-30,inflectumNode),
+	inflectumLink("node3",10,10,inflectumNode,inflectumNode),
 	inflectumLink("node4",-30),
-	inflectumLink("node5",undef,-20,undef,5)];
+	inflectumLink("node5",undef,-20)];
 DEFAULTS1 =
 	inflectumDefaults(
 	inflectumNode(undef,undef,5),
-	inflectumLink(undef,undef,-33,undef,30));
+	inflectumLink(undef,undef,-33),
+	inflectumAutoRadius(5));
 START1           = data(nodes=NODES1,links=LINKS1,defaults=DEFAULTS1);
 PROCESSED1       = process_preprocessing(START1);
 P1_DEFAULTS_NODE = PROCESSED1[dataDefaults][defaultsNode];
 P1_DEFAULTS_LINK = PROCESSED1[dataDefaults][defaultsLink];
+P1_DEFAULTS_AUTO = PROCESSED1[dataDefaults][defaultsAutoRadius];
 P1_NODES         = PROCESSED1[dataNodes];
 P1_LINKS         = PROCESSED1[dataLinks];
 
@@ -77,7 +81,10 @@ testGroup("Preprocessing Function")
       testCase("normal 1 - node",[START1,P1_DEFAULTS_NODE],
 			node(id=undef,x=undef,x=undef,radius=5)),
 		testCase("normal 1 - link",[START1,P1_DEFAULTS_LINK],
-			link(id=undef,angle1=0,angle2=-33,isIndep=false,thickness=30))])
+			link(id=undef,angle1=0,angle2=-33,
+				radius1=inflectumNode,radius2=inflectumNode)),
+		testCase("normal 1 - auto-radius",[START1,P1_DEFAULTS_AUTO],
+			autoRadius(distance=5))])
 	testFunction($value[1]);
 
 	// NORMAL 1:
@@ -96,18 +103,21 @@ testGroup("Preprocessing Function")
 		testFunction($value[1]);
 
 	// NORMAL 1:
-	// inflectumLink("node1",-45,-45),
-   // inflectumLink("node2",-45,-30,true,10),
-   // inflectumLink("node3",10,10,false,10),
-   // inflectumLink("node4",-30),
-   // inflectumLink("node5",undef,-20,undef,5)
-	// default = inflectumLink(undef,undef,-33,undef,30)
+	// inflectumLink("node1",-45,-45)
+	// inflectumLink("node2",-45,-30,inflectumNode)
+	// inflectumLink("node3",10,10,inflectumNode,inflectumNode)
+	// inflectumLink("node4",-30)
+	// inflectumLink("node5",undef,-20)
 	testSet("links","part of final output",[
       testCase("normal 1",[START1,P1_LINKS],
-			[link(node=0,angle1=-45,angle2=-45,isIndep=false,thickness=30),
-			 link(node=1,angle1=-45,angle2=-30,isIndep=true,thickness=10),
-			 link(node=2,angle1=-30,angle2=-33,isIndep=false,thickness=30),
-			 link(node=3,angle1=0,angle2=-20,isIndep=false,thickness=5)])])
+			[link(node=0,angle1=-45,angle2=-45,
+				radius1=inflectumNode,radius2=inflectumNode),
+			 link(node=1,angle1=-45,angle2=-30,
+				radius1=inflectumNode,radius2=inflectumNode),
+			 link(node=2,angle1=-30,angle2=-33,
+				radius1=inflectumNode,radius2=inflectumNode),
+			 link(node=3,angle1=0,angle2=-20,
+				radius1=inflectumNode,radius2=inflectumNode)])])
 		testFunction($value[1]);
 
 // end of test group

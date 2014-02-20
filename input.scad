@@ -20,6 +20,7 @@ include <common.scad>
 include <config.scad>
 include <value.scad>
 include <structures.scad>
+include <keywords.scad>
 
 /*
 	These functions are used to construct the input nodes, links and defaults
@@ -28,8 +29,9 @@ include <structures.scad>
 	Functions:
 		function inflectumNode(id,position,radius)
 		function inflectumOuterNode(id,node,angle,radius,onOutside,onInside)
-		function inflectumLink(node,angle1,angle2)
-		function inflectumDefaults(node,link)
+		function inflectumLink(node,angle1,angle2,radius1,radius2)
+		function inflectumAutoRadius(distance)
+		function inflectumDefaults(node,link,autoRadius)
 */
 
 /******************************************************************************
@@ -159,13 +161,17 @@ function inflectumOuterNode(id,node,angle,radius,onOutside,onInside) = _
 
 	The link must be given the id of a node, for which the link starts from
 	(the link ends on the node given by the next link), and optionally the
-	relative start and end angles. Omitted/undef angles will be replaced by
-	defaults in the processing.
+	relative start and end angles, and overriding start and end radii. Omitted/
+	undef angles will be replaced by defaults in the processing.
 
 		node = <string>
 			(an id from the node list)
 		angle1 = <number>
 		angle2 = <number>
+		radius1 = <number> or inflectumNode or inflectumAuto
+			(minimum <number> = CONFIG_MIN_RADIUS)
+		radius1 = <number> or inflectumNode or inflectumAuto
+			(minimum <number> = CONFIG_MIN_RADIUS)
 
 	node:
 		The id of the starting node for this link to connect to. The ending
@@ -178,16 +184,47 @@ function inflectumOuterNode(id,node,angle,radius,onOutside,onInside) = _
 		enforced, and may be changed to correct overlapping angles,
 		averaging the angles if necessary. Negative angles point inwards,
 		while positive angles point outwards.
+	radius1,radius2:
+		Overriding start and end node radii. This allows two or more different
+		radii to be used on a single node (consine/bezier interpolation is used
+		when necessary). If inflectumNode is used, the radius is given by the
+		original node. If inflectumAuto is used, an automatic radius is used, and
+		is configured by passing an auto-radius specification to the defaults-
+		constructor.
 		
 	If the node id is unknown or invalid, the link will not be constructed.
 */
-function inflectumLink(node,angle1,angle2) = 
-	link(id=node,node=string(node),angle1=number(angle1),angle2=number(angle2));
+function inflectumLink(node,angle1,angle2,radius1,radius2) = 
+	link(id=node,node=string(node),angle1=number(angle1),angle2=number(angle2),
+		radius1=_inflectumLink_autoRadius(radius1),
+		radius2=_inflectumLink_autoRadius(radius2));
+	function _inflectumLink_autoRadius(radius) = 
+		IF (radius==inflectumNode || radius==inflectumAuto) ?
+			THEN  (radius)
+			:ELSE (max(number(radius),CONFIG_MIN_RADIUS));
 
 /*
-	Creates a default specification, given default node and link
-	specifications. These defaults will be used for unspecified (undef)
-	properties for the nodes and links. Just in case these defaults
+	Creates an auto-radius specification that allows auto-radii to be configured.
+	This is passed to the defaults-constructor.
+
+	To configure auto-radii, a minimum distance between the links must be given.
+	Through use of a formula (taking into account this distance, the angle between
+	the links), an "auto"matic radius is found.
+
+		distance = <number>
+			(minimum = CONFIG_MIN_RADIUS)
+	
+	distance:
+		The minimum distance between the sides of two close links.
+*/
+function inflectumAutoRadius(distance) =
+	autoRadius(distance=max(number(distance),CONFIG_MIN_RADIUS));
+
+/*
+	Creates a default specification, given default node, link and optional
+	auto-radius specifications. The node and link defaults will be used for
+	unspecified (undef) properties for the nodes and links, while the auto-radius
+	specification is used to configure automatic radii. Just in case these defaults
 	are unspecified or invalid values have been used, the following are the
 	hard-coded defaults for the defaults (corrected in preprocessing):
 
@@ -195,12 +232,16 @@ function inflectumLink(node,angle1,angle2) =
 			position  = [undef,undef]
 			radius    = CONFIG_MIN_RADIUS
 		link:
-			angle1        = 0
-			angle2        = 0
+			angle1  = 0
+			angle2  = 0
+			radius1 = inflectumNode
+			radius2 = inflectumNode
+		autoRadius:
+			distance = CONFIG_MIN_RADIUS
 		
 	For nodes, some of the hard-coded defaults are undef, so if these
 	properties are left unspecified and the defaults for these properties are
 	also undef, the node will be invalid and will not be created.
 */
-function inflectumDefaults(node,link) = 
-	defaults(node=node,link=link);
+function inflectumDefaults(node,link,autoRadius) = 
+	defaults(node=node,link=link,autoRadius=autoRadius);
